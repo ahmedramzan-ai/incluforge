@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en" data-theme="day">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IncluForge — Inclusive Design Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500;1,600&family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   INCLUFORGE · SPEC-SHEET EDITORIAL
+   Hairline rules, square corners, one cobalt accent, serif
+   display type. Text tokens stay >= 4.5:1 and UI borders
+   >= 3:1 in every appearance mode (SC 1.4.3 / 1.4.11).
+   ============================================================ */
+:root{
+  --bg:#F5F1E8; --gridline:rgba(26,25,21,.055);
+  --fg:#1A1915; --mut:#5A574D; --panel:#FFFFFF; --softer:#EFEAE0;
+  --accent:#1D4ED8; --accent-ink:#FFFFFF;
+  --good:#186A3B; --on-good:#FFFFFF;
+  --bad:#B3261E;  --on-bad:#FFFFFF;
+  --hair:#C9C2B2;
+  --display:'Fraunces',Georgia,'Times New Roman',serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+:root[data-theme=night]{
+  --bg:#12131A; --gridline:rgba(237,235,227,.05);
+  --fg:#EDEBE3; --mut:#B4B0A3; --panel:#1B1D26; --softer:#232633;
+  --accent:#8FA6FF; --accent-ink:#101223;
+  --good:#7CDB95; --on-good:#0A0F0C;
+  --bad:#FFA29B;  --on-bad:#1A0705;
+  --hair:#3A3E4E;
+  color-scheme:dark;
+}
+:root[data-theme=stark]{
+  --bg:#000; --gridline:transparent;
+  --fg:#FFFFFF; --mut:#FFFFFF; --panel:#000000; --softer:#000000;
+  --accent:#FFD400; --accent-ink:#000000;
+  --good:#00E676; --on-good:#000000;
+  --bad:#FF9E93;  --on-bad:#000000;
+  --hair:#FFFFFF;
+  color-scheme:dark;
+}
+
+/* ---------- base ---------- */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;
+  font:1rem/1.6 'IBM Plex Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  color:var(--fg);background-color:var(--bg);
+  background-image:linear-gradient(var(--gridline) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--gridline) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+:root[data-theme=stark] body{background-image:none}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+:root[data-theme=stark] :focus-visible{outline:4px solid var(--accent);outline-offset:2px}
+main:focus{outline:none}
+::selection{background:var(--accent);color:var(--accent-ink)}
+a{color:var(--accent);font-weight:600;text-underline-offset:3px}
+p,li{max-width:70ch}
+h1,h2,h3{font-family:var(--display)}
+code,pre,output{font-family:var(--mono)}
+label{font-weight:600}
+label:has(input){cursor:pointer}
+.fineprint{font-size:.85rem;color:var(--mut)}
+.statusline{border:1px dashed var(--mut);padding:.6rem .8rem;font-weight:600;margin:1rem 0;min-height:2.6rem}
+.skip{position:absolute;left:.8rem;top:-4rem;z-index:99;background:var(--fg);color:var(--bg);
+ padding:.7rem 1.1rem;font-weight:700;text-decoration:none;border:1px solid var(--bg);transition:top .15s}
+.skip:focus{top:.8rem}
+
+/* ---------- shell: dock + sheet ---------- */
+.shell{display:grid;grid-template-columns:17rem minmax(0,1fr);min-height:100vh}
+.dock{
+ position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;
+ padding:1.4rem 1.1rem;border-right:1px solid var(--fg);
+ display:flex;flex-direction:column;gap:1.3rem;background:var(--panel);
+}
+.dock-brand{display:flex;gap:.7rem;align-items:center}
+.mark{width:44px;height:44px;flex:none;color:var(--fg)}
+.brandword{display:block;font:700 .95rem var(--mono);letter-spacing:.22em}
+.brandsub{display:block;font:500 .58rem var(--mono);letter-spacing:.2em;color:var(--mut);margin-top:.25rem}
+.docknav{border:1px solid var(--fg)}
+.navtab{
+ display:block;width:100%;text-align:left;background:var(--panel);color:var(--fg);
+ border:0;border-bottom:1px solid var(--hair);padding:.75rem .8rem;cursor:pointer;font:inherit;
+ transition:background .12s ease,color .12s ease;
+}
+.navtab:last-child{border-bottom:0}
+.navtab:hover{background:var(--softer)}
+.navnum{display:block;font:700 .62rem var(--mono);letter-spacing:.2em;color:var(--mut)}
+.navname{display:block;font-weight:700;font-size:.95rem;margin:.15rem 0 .1rem}
+.navhint{display:block;font:500 .68rem var(--mono);letter-spacing:.06em;color:var(--mut)}
+.navtab[aria-selected=true]{background:var(--fg);color:var(--bg)}
+.navtab[aria-selected=true] .navnum,.navtab[aria-selected=true] .navhint{color:var(--bg);opacity:.75}
+.tuner{border:1px solid var(--fg);padding:.7rem .8rem;margin:0}
+.tuner legend{font:700 .62rem var(--mono);letter-spacing:.2em;text-transform:uppercase;padding:0 .4rem}
+.tuner label{display:flex;align-items:center;gap:.45rem;padding:.22rem 0;font-size:.9rem}
+.docktags{display:flex;flex-wrap:wrap;gap:.35rem;margin:auto 0 0;padding-top:1rem}
+.docktags span{font:600 .58rem var(--mono);letter-spacing:.14em;border:1px solid var(--fg);
+ padding:.22rem .45rem;color:var(--fg)}
+
+/* ---------- sheet / masthead ---------- */
+.sheet{padding:1.9rem clamp(1rem,4vw,2.6rem) 3rem;min-width:0}
+.masthead{padding-bottom:1.4rem}
+.kicker{font:600 .68rem var(--mono);letter-spacing:.24em;color:var(--mut);margin:0 0 .8rem}
+h1{font-weight:600;font-size:clamp(3rem,8vw,5.4rem);line-height:.98;letter-spacing:-.02em;margin:0 0 1rem}
+h1 .tint{font-style:italic;color:var(--accent)}
+:root[data-theme=stark] h1 .tint{color:var(--accent)}
+.standfirst{max-width:58ch;font-size:1.08rem;color:var(--mut);margin:0 0 1.4rem;
+ border-left:4px solid var(--accent);padding-left:1rem}
+.ticker{font:600 .66rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--mut);
+ border-top:1px solid var(--fg);border-bottom:1px solid var(--fg);padding:.55rem 0;margin:0}
+
+/* ---------- benches (tab panels) ---------- */
+main{margin-top:1.6rem}
+[role=tabpanel]{animation:settle .25s ease both}
+@keyframes settle{from{opacity:.4;transform:translateY(8px)}to{opacity:1;transform:none}}
+.bench-head{display:flex;flex-wrap:wrap;gap:1.1rem;align-items:baseline;margin:0 0 1.5rem}
+.bench-no{font:italic 600 clamp(2.4rem,5vw,3.6rem)/1 var(--display);color:var(--accent)}
+.bench-head h2{font-weight:600;font-size:clamp(1.6rem,3.5vw,2.3rem);line-height:1.1;margin:0 0 .4rem}
+.bench-head h2 em{font-style:italic;color:var(--accent)}
+.bench-head>p{color:var(--mut);margin:0;max-width:62ch}
+
+/* ---------- slabs (panels/cards) ---------- */
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,25rem),1fr));gap:1.2rem;align-items:stretch}
+.slab{border:1px solid var(--fg);background:var(--panel);margin:0}
+.slab+.slab,.slab.solo,#standards,.rowbtns,.outbox{margin-top:1.2rem}
+.slab-h{display:flex;align-items:center;gap:.55rem;margin:0;padding:.66rem .95rem;
+ border-bottom:1px solid var(--fg);font:700 .74rem var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.slab-h::before{content:"";flex:none;width:.55rem;height:.55rem;background:var(--accent)}
+.slab-b{padding:1rem}
+.slab-b h4{margin:.2rem 0 .4rem}
+
+/* ---------- controls ---------- */
+button{font:inherit;min-height:2.8rem}
+button,.act,select,input[type=text],input[type=email],input[type=range],textarea{font:inherit}
+button,.act{
+ background:var(--panel);color:var(--fg);border:1px solid var(--fg);border-radius:0;
+ padding:.55rem 1rem;font-weight:700;cursor:pointer;transition:background .12s ease,color .12s ease}
+button:hover,.act:hover{background:var(--fg);color:var(--bg)}
+.act{background:var(--accent);color:var(--accent-ink);border-color:var(--fg)}
+.act:hover{background:var(--fg);color:var(--bg)}
+select,input[type=text],input[type=email]{
+ background:var(--panel);color:var(--fg);border:1px solid var(--fg);border-radius:0;
+ padding:.5rem .6rem;max-width:100%}
+input[type=color]{width:3.2rem;height:2.6rem;padding:0;border:1px solid var(--fg);
+ border-radius:0;background:var(--panel);cursor:pointer}
+input[type=range]{accent-color:var(--accent);flex:1 1 10rem;min-width:8rem}
+input[type=checkbox],input[type=radio]{width:1.05rem;height:1.05rem;accent-color:var(--accent);vertical-align:middle}
+.row{display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+.rowbtns{display:flex;flex-wrap:wrap;gap:.8rem}
+
+/* ---------- disclosures ---------- */
+.fold{display:flex;justify-content:space-between;align-items:center;gap:.8rem;width:100%;text-align:left;margin:.5rem 0}
+.fold::after{content:"+";flex:none;width:1.55rem;height:1.55rem;line-height:1.45;text-align:center;
+ font:700 1rem var(--mono);border:1px solid var(--fg);background:var(--panel)}
+.fold[aria-expanded=true]::after{content:"−";background:var(--accent);color:var(--accent-ink)}
+.fold [aria-hidden] ,.foldpane{border:1px solid var(--fg);border-top:0;background:var(--softer);padding:.85rem .95rem}
+
+/* ---------- dialog ---------- */
+dialog{background:var(--panel);color:var(--fg);border:1px solid var(--fg);border-radius:0;
+ max-width:30rem;width:calc(100vw - 2rem);padding:0}
+dialog::backdrop{background:rgba(8,8,10,.55)}
+.dlg-strip{margin:0;padding:.65rem 1.2rem;border-bottom:1px dotted var(--mut);
+ font:600 .64rem var(--mono);letter-spacing:.22em;color:var(--mut)}
+.dlg-body{padding:1.1rem 1.2rem 1.3rem}
+.dlg-body h3{margin:.1rem 0 .4rem;font-size:1.35rem;font-weight:600}
+.dlg-body p{color:var(--mut);margin:.2rem 0 1rem}
+.dlg-actions{display:flex;flex-wrap:wrap;gap:.7rem}
+
+/* ---------- flyout menu ---------- */
+.menuwrap{position:relative;display:inline-block}
+.flyout{position:absolute;top:calc(100% + .3rem);left:0;z-index:20;min-width:13rem;
+ background:var(--panel);border:1px solid var(--fg);padding:.3rem}
+.flyout button{display:block;width:100%;text-align:left;border:0;padding:.5rem .7rem;margin:.1rem 0;font-weight:600}
+.flyout button:hover{background:var(--fg);color:var(--bg)}
+
+/* ---------- form ---------- */
+.frmrow{margin:.9rem 0}
+.frmrow label{display:block;font-weight:700;margin-bottom:.3rem;font-size:.95rem}
+.frmrow input{width:min(22rem,100%)}
+.ferr{color:var(--bad);font-weight:700}
+.ferr:empty{display:none}
+#digest:not([hidden]){border:1px solid var(--fg);border-left:6px solid var(--bad);
+ background:var(--panel);padding:.85rem 1rem;margin:1rem 0}
+#digest ul{margin:.4rem 0 0;padding-left:1.3rem}
+#digest:focus{outline:3px solid var(--accent);outline-offset:3px}
+.speak{margin-top:1rem;border:1px dashed var(--mut);padding:.6rem .8rem;font-weight:600;min-height:2.6rem}
+
+/* ---------- key journal ---------- */
+.ledgerbox{border:1px solid var(--fg)}
+.ledgerbox::before,.outbox::before{content:attr(data-strip);display:block;background:var(--fg);color:var(--bg);
+ font:700 .64rem var(--mono);letter-spacing:.22em;padding:.5rem .9rem}
+#feed{list-style:none;margin:0;padding:.85rem 1rem;min-height:11rem;font-size:.84rem}
+#feed li{padding:.3rem 0;border-bottom:1px dotted var(--mut)}
+#feed li:last-child{border-bottom:0}
+#feed li::before{content:"» ";color:var(--accent);font-weight:700}
+#feed:empty::after{content:"Press any key — events land here.";color:var(--mut);font-style:italic}
+#reportOut{margin:0;padding:1rem;min-height:10rem;white-space:pre-wrap;overflow:auto;font-size:.85rem}
+#reportOut:focus{outline:3px solid var(--accent);outline-offset:-3px}
+
+/* ---------- contrast bench ---------- */
+.pickcol{display:flex;flex-direction:column;gap:.4rem}
+.pickcol>label{font:700 .64rem var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.pickline{display:flex;gap:.5rem;align-items:center}
+.pickline input[type=text]{width:9.5ch;font-weight:600}
+.ratio-line{font-family:var(--display);font-size:1.5rem;margin:1rem 0 .4rem}
+.ratio-line strong{color:var(--accent);font-weight:600}
+#verdictList{list-style:none;padding:0;margin:.6rem 0}
+#verdictList li{border-bottom:1px dotted var(--mut);padding:.38rem 0;font-weight:600;font-size:.93rem}
+#verdictList li.pass span{color:var(--good)}
+#verdictList li.nopass span{color:var(--bad)}
+#previewPad{border:1px solid var(--fg);padding:1rem;margin-top:.9rem}
+#previewPad p{margin:.25rem 0;max-width:none}
+.pv-1{font-size:1rem}.pv-2{font-size:1.5rem}.pv-3{font-size:1.167rem;font-weight:700}
+
+/* ---------- magnification rig ---------- */
+.rig-controls{display:flex;flex-wrap:wrap;gap:.9rem;align-items:center}
+.rig-switches{display:flex;flex-wrap:wrap;gap:1.2rem;margin:.9rem 0}
+.rig-switches label,.lens label{display:inline-flex;align-items:center;gap:.45rem}
+.viewport{border:1px solid var(--fg);background:var(--panel);overflow:auto;padding:1rem;min-height:12rem}
+#stage{font-size:16px}
+
+/* ---------- fixture sample (fixed light surface so themes compare fairly) ----------
+   The .fixture-bad rules ARE the demo (low contrast, no focus ring, tiny hit areas) — keep them. */
+.fixture{background:#fff;color:#111;padding:1rem;font-size:1em}
+.fixture h2{font-size:1.4em;margin:.2em 0}
+.fixture h3,.fixture h5{font-size:1.1em}
+.fixture table{border-collapse:collapse}
+.fixture img{max-width:100%}
+.fixture-good{max-width:100%}.fixture-good *{max-width:100%}
+.fixture-good p{color:#444}.fixture-good a{color:#0a4fa3}
+.fixture-good button{background:#0b5c63;color:#fff;border:2px solid #0b5c63;padding:.4em .9em;
+ min-height:2.75rem;cursor:pointer;border-radius:8px;font-weight:400}
+.fixture-good button:hover{background:#0b5c63;color:#fff}
+.fixture-good input{border:2px solid #555;padding:.4em;background:#fff;color:#111;min-height:2.75rem}
+.fixture-good label{display:block;font-weight:600}
+.fixture-good .fx-err{color:#a4170f;font-weight:600;display:block}
+.fixture-good :focus-visible{outline:3px solid #0a4fa3;outline-offset:2px}
+.fixture-good td,.fixture-good th{border:1px solid #555;padding:.3em}
+.fixture-bad{width:600px;font-size:14px}
+.fixture-bad button{background:#f2f2f2;color:#111;border:1px solid #bbb;padding:.25em .6em;
+ font-weight:400;min-height:auto}
+.fixture-bad button:hover{background:#f2f2f2;color:#111}
+.fixture-bad *:focus{outline:none}
+.fx-top{display:flex;justify-content:space-between}
+.fx-dim{color:#aaa}.fixture-bad a{color:#7ab}
+.fx-click{display:inline-block;background:#2b7a82;color:#fff;padding:8px 14px;cursor:pointer}
+.fixture-bad input{border:1px solid #ddd;padding:6px}
+.fx-red{border:2px solid #d33}
+.fixture-bad td{border:1px solid #ccc;padding:4px}
+.airy *{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}
+.airy p{margin-bottom:2em!important}
+
+/* ---------- remediation bench ---------- */
+.lens{border:1px solid var(--fg);padding:.8rem 1rem;margin:0 0 1.2rem;background:var(--panel)}
+.lens legend{font:700 .64rem var(--mono);letter-spacing:.2em;text-transform:uppercase;padding:0 .4rem}
+.lens label{border:1px solid var(--fg);padding:.35rem .75rem;margin:.25rem .5rem .25rem 0;
+ font-weight:700;font-size:.9rem;transition:background .12s ease,color .12s ease}
+.lens label:has(input:checked){background:var(--fg);color:var(--bg)}
+.frames{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:1.2rem;margin:1.1rem 0}
+.frame{border:1px solid var(--fg);margin:0;background:var(--panel)}
+.ftag{display:inline-block;font:700 .64rem var(--mono);letter-spacing:.18em;padding:.3rem .55rem;margin:.7rem 0 0 .7rem;border:1px solid var(--fg)}
+.ftag-bad{background:var(--bad);color:var(--on-bad)}
+.ftag-good{background:var(--good);color:var(--on-good)}
+.framebody{overflow:auto;padding:1rem}
+#gauge{appearance:none;-webkit-appearance:none;width:100%;height:14px;border:1px solid var(--fg);
+ background:var(--panel);border-radius:0;overflow:hidden;margin:.4rem 0 1.2rem}
+#gauge::-webkit-progress-bar{background:var(--panel)}
+#gauge::-webkit-progress-value{background:var(--accent)}
+#gauge::-moz-progress-bar{background:var(--accent)}
+.bench-plate{display:inline-block;font:700 .78rem var(--mono);letter-spacing:.2em;
+ border:1px solid var(--fg);padding:.45rem .8rem;margin:0 0 1rem;background:var(--softer)}
+#ledger{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,21rem),1fr));gap:1.1rem}
+.case{border:1px solid var(--fg);background:var(--panel);padding:.9rem 1rem;margin:0}
+.case-head{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem}
+.sctag{font:700 .64rem var(--mono);letter-spacing:.1em;border:1px solid var(--fg);
+ background:var(--softer);padding:.18rem .45rem}
+.case-head h4{margin:0;font-size:1rem;font-family:var(--display);font-weight:600}
+.case-who{font:500 .76rem var(--mono);color:var(--mut);margin:.45rem 0}
+.case-actions{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.tick{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--fg);
+ padding:.35rem .65rem;font-weight:700;font-size:.88rem;transition:background .12s ease,color .12s ease}
+.tick-found:has(:checked){background:var(--bad);color:var(--on-bad)}
+.tick-fixed:has(:checked){background:var(--good);color:var(--on-good)}
+.case details{margin-top:.75rem;border-top:1px dotted var(--mut);padding-top:.5rem}
+.case summary{font-weight:700;cursor:pointer;list-style:none;display:flex;align-items:center;gap:.45rem;padding:.3rem 0;color:var(--accent)}
+.case summary::-webkit-details-marker{display:none}
+.case summary::before{content:"+";font:700 1rem var(--mono);transition:transform .18s ease}
+.case details[open] summary::before{transform:rotate(45deg)}
+.case details p{font-size:.92rem;margin:.4rem 0}
+.case pre{background:var(--softer);border:1px solid var(--hair);padding:.6rem .7rem;
+ overflow-x:auto;white-space:pre-wrap;font-size:.8rem;margin:.4rem 0}
+
+/* ---------- audit bench ---------- */
+.stdrow{border:1px solid var(--fg);background:var(--panel);padding:.85rem .95rem;margin-bottom:.8rem}
+.std-top{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem}
+.std-top strong{font-family:var(--display);font-weight:600;font-size:1.05rem}
+.lvl{font:700 .62rem var(--mono);letter-spacing:.1em;border:1px solid var(--fg);padding:.15rem .4rem}
+.std-how{color:var(--mut);font-size:.93rem;margin:.45rem 0}
+.std-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.std-controls label{border:1px solid var(--fg);padding:.3rem .6rem;font-weight:700;font-size:.88rem;
+ transition:background .12s ease,color .12s ease}
+.std-controls label:has(input[value=pass]:checked){background:var(--good);color:var(--on-good)}
+.std-controls label:has(input[value=fail]:checked){background:var(--bad);color:var(--on-bad)}
+.std-controls label:has(input[value=na]:checked){background:var(--softer)}
+.stdnote{flex:1 1 14rem;border:1px solid var(--fg);padding:.45rem .6rem;background:var(--panel);color:var(--fg)}
+
+/* ---------- footer ---------- */
+.colophon{margin-top:2.6rem;border-top:1px solid var(--fg);padding-top:1.4rem;color:var(--mut);font-size:.95rem}
+.colophon strong{color:var(--fg)}
+
+/* ---------- responsive / motion / print ---------- */
+@media(max-width:980px){
+ .shell{grid-template-columns:1fr}
+ .dock{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--fg)}
+ .docknav{display:flex;overflow-x:auto}
+ .navtab{width:auto;min-width:11.5rem;border-bottom:0;border-right:1px solid var(--hair)}
+ .navtab:last-child{border-right:0}
+ .tuner legend{float:left}
+}
+@media(max-width:600px){
+ .navhint,.docktags{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+@media print{
+ body{background:#fff;color:#000}
+ .dock,.ticker,.noprint,.skip{display:none!important}
+ .sheet{padding:0}
+ .slab,.frame,.ledgerbox,.outbox,.stdrow,.case{border:1px solid #555;box-shadow:none;break-inside:avoid}
+ main[role=tabpanel][hidden]{display:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#workbench">Skip to the workbench</a>
+
+<div class="shell">
+
+ <!-- ============ side dock: brand, bench nav, appearance ============ -->
+ <aside class="dock">
+  <div class="dock-brand">
+   <svg class="mark" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+    <rect x="1.5" y="1.5" width="41" height="41" fill="none" stroke="currentColor" stroke-width="3"/>
+    <path d="M12 33V11h20" fill="none" stroke="currentColor" stroke-width="4"/>
+    <path d="M12 22h14" stroke="currentColor" stroke-width="4"/>
+    <circle cx="31.5" cy="31.5" r="4.5" fill="var(--accent)"/>
+   </svg>
+   <span>
+    <span class="brandword">INCLUFORGE</span>
+    <span class="brandsub">INCLUSIVE DESIGN WORKBENCH</span>
+   </span>
+  </div>
+
+  <nav aria-label="Workshop benches">
+   <div class="docknav" role="tablist" aria-orientation="vertical" aria-label="Workshop benches" id="benchNav">
+    <button role="tab" id="nav1" aria-controls="bench1" aria-selected="true">
+     <span class="navnum">01</span><span class="navname">Keyboard &amp; ARIA bench</span>
+     <span class="navhint">tabs · dialog · menu · form</span></button>
+    <button role="tab" id="nav2" aria-controls="bench2" aria-selected="false" tabindex="-1">
+     <span class="navnum">02</span><span class="navname">Contrast &amp; magnification rig</span>
+     <span class="navhint">ratios · 400% · CVD filters</span></button>
+    <button role="tab" id="nav3" aria-controls="bench3" aria-selected="false" tabindex="-1">
+     <span class="navnum">03</span><span class="navname">Remediation workshop</span>
+     <span class="navhint">14 failures · patch · track</span></button>
+    <button role="tab" id="nav4" aria-controls="bench4" aria-selected="false" tabindex="-1">
+     <span class="navnum">04</span><span class="navname">Audit ledger</span>
+     <span class="navhint">checklist · report · print</span></button>
+   </div>
+  </nav>
+
+  <fieldset class="tuner"><legend>Appearance</legend>
+   <label><input type="radio" name="mode" value="day"> Daylight</label>
+   <label><input type="radio" name="mode" value="night"> Lamplight</label>
+   <label><input type="radio" name="mode" value="stark"> Maximum contrast</label>
+  </fieldset>
+
+  <p class="docktags" aria-hidden="true"><span>WCAG 2.1 AA</span><span>KEYBOARD FIRST</span><span>320 PX</span><span>200 %</span></p>
+ </aside>
+
+ <!-- ============ sheet: masthead + benches ============ -->
+ <div class="sheet">
+  <header class="masthead">
+   <p class="kicker">PRACTICAL · STANDARDS-BASED · SELF-TESTING</p>
+   <h1>Inclu<span class="tint">Forge</span></h1>
+   <p class="standfirst">A working bench for inclusive interfaces: drive every control from the keyboard,
+   measure color against the official WCAG math, repair a failing demo page, and file a standards-based audit.</p>
+   <p class="ticker" aria-hidden="true">Keyboard-only operation / 4.5:1 text contrast / 200% text scaling / 320 px reflow / authored ARIA patterns / focus always visible / WCAG 2.1 AA</p>
+  </header>
+
+  <main id="workbench" tabindex="-1">
+
+  <!-- ================= BENCH 1 · KEYBOARD & ARIA ================= -->
+  <section role="tabpanel" id="bench1" aria-labelledby="nav1">
+   <div class="bench-head"><span class="bench-no" aria-hidden="true">01</span>
+    <div><h2>Keyboard &amp; <em>screen reader</em> bench</h2>
+    <p>Park the mouse. Every exercise here is operable with Tab, arrows, Enter, Space and Esc,
+    and each names the ARIA it demonstrates. Reach for native HTML first — ARIA patches what native
+    elements cannot express.</p></div></div>
+
+   <div class="duo">
+
+    <section class="slab"><h3 class="slab-h">Bench switcher</h3>
+     <div class="slab-b"><p><strong>Test:</strong> Tab once to land on the bench list in the sidebar,
+     then move with ↑ ↓ Home End. <strong>ARIA:</strong> tablist with <code>aria-orientation="vertical"</code>,
+     tab, tabpanel, aria-selected, aria-controls, roving tabindex — the whole list is one Tab stop.</p></div></section>
+
+    <section class="slab"><h3 class="slab-h">Disclosure widget</h3>
+     <div class="slab-b">
+      <p><strong>Test:</strong> Enter or Space on a question. <strong>ARIA:</strong> aria-expanded, aria-controls.</p>
+      <button class="fold" id="fold1" aria-expanded="false" aria-controls="foldPane1">What counts as a visible focus indicator?</button>
+      <div class="foldpane" id="foldPane1" role="region" aria-labelledby="fold1" hidden>The on-screen marker that shows which element holds keyboard focus (SC 2.4.7).</div>
+      <button class="fold" id="fold2" aria-expanded="false" aria-controls="foldPane2">Why reach for native HTML first?</button>
+      <div class="foldpane" id="foldPane2" role="region" aria-labelledby="fold2" hidden>Native buttons and links ship focus, keys and roles for free; ARIA only fills the gaps (SC 2.1.1, 4.1.2).</div>
+     </div></section>
+
+    <section class="slab"><h3 class="slab-h">Modal dialog</h3>
+     <div class="slab-b">
+      <p><strong>Test:</strong> Open it, press Tab (focus stays inside), press Esc (focus returns to the launcher).
+      <strong>ARIA:</strong> the native <code>dialog</code> plus <code>showModal()</code> supplies the modal role,
+      the focus trap and Esc; aria-labelledby and aria-describedby name it.</p>
+      <button class="act" id="launchDialog">Open dialog</button>
+      <dialog id="confirmBox" aria-labelledby="dlgTitle" aria-describedby="dlgText">
+       <p class="dlg-strip">MODAL · NATIVE &lt;DIALOG&gt;</p>
+       <div class="dlg-body">
+        <h3 id="dlgTitle">Please confirm</h3>
+        <p id="dlgText">Keyboard focus is held inside this dialog until you dismiss it. Esc closes and returns focus to the launcher.</p>
+        <div class="dlg-actions noprint">
+         <button class="act" id="dismissDialog">Close dialog</button>
+         <button id="secondCtl">Second control</button>
+        </div>
+       </div>
+      </dialog>
+     </div></section>
+
+    <section class="slab"><h3 class="slab-h">Menu button</h3>
+     <div class="slab-b">
+      <p><strong>Test:</strong> Enter or ↓ opens; ↑ ↓ Home End move; Esc closes and restores focus.
+      <strong>ARIA:</strong> aria-haspopup, aria-expanded, menu, menuitem.</p>
+      <div class="menuwrap">
+       <button id="toolTrigger" aria-haspopup="menu" aria-expanded="false" aria-controls="toolMenu">Record actions</button>
+       <div id="toolMenu" class="flyout" role="menu" aria-labelledby="toolTrigger" hidden>
+        <button role="menuitem" tabindex="-1">Duplicate entry</button>
+        <button role="menuitem" tabindex="-1">Archive entry</button>
+        <button role="menuitem" tabindex="-1">Remove entry</button>
+       </div>
+      </div>
+     </div></section>
+
+    <section class="slab"><h3 class="slab-h">Validated form</h3>
+     <div class="slab-b">
+      <p><strong>Test:</strong> Submit empty. Focus moves to the digest; each link jumps to its field.
+      <strong>ARIA:</strong> aria-required, aria-invalid, aria-describedby, role=status.</p>
+      <div id="digest" tabindex="-1" hidden></div>
+      <form id="signupForm" novalidate>
+       <div class="frmrow"><label for="personName">Full name (required)</label>
+        <input id="personName" type="text" aria-required="true" aria-describedby="personNameFeedback" autocomplete="name">
+        <div id="personNameFeedback" class="ferr"></div></div>
+       <div class="frmrow"><label for="personEmail">Email (required)</label>
+        <input id="personEmail" type="email" aria-required="true" aria-describedby="personEmailFeedback" autocomplete="email">
+        <div id="personEmailFeedback" class="ferr"></div></div>
+       <button class="act" type="submit">Submit form</button>
+      </form>
+      <div id="speak" class="speak" role="status"></div>
+     </div></section>
+
+    <section class="slab"><h3 class="slab-h">Key press journal</h3>
+     <div class="slab-b">
+      <p>Logs each key and the focused element so you can verify focus order (SC 2.4.3).
+      It also tames the deliberate keyboard trap used by the regression sample on bench 02.</p>
+      <div class="ledgerbox" data-strip="INPUT LEDGER · LAST 8 EVENTS">
+       <ol id="feed" aria-label="Recent key events"></ol>
+      </div>
+     </div></section>
+
+   </div>
+  </section>
+
+  <!-- ================= BENCH 2 · CONTRAST & MAGNIFICATION ================= -->
+  <section role="tabpanel" id="bench2" aria-labelledby="nav2" hidden>
+   <div class="bench-head"><span class="bench-no" aria-hidden="true">02</span>
+    <div><h2>Contrast &amp; <em>magnification</em> rig</h2>
+    <p>Sample two colors, crank the text toward 400%, and look at the demo through simulated
+    color-vision loss to find exactly where an interface falls apart.</p></div></div>
+
+   <div class="duo">
+
+    <section class="slab"><h3 class="slab-h">Contrast bench</h3>
+     <div class="slab-b">
+      <div class="row">
+       <div class="pickcol"><label for="inkPick">Ink (text color)</label>
+        <div class="pickline"><input type="color" id="inkPick" value="#767676">
+         <input type="text" id="inkHex" value="#767676" size="9" aria-label="Ink color hex value"></div></div>
+       <div class="pickcol"><label for="groundPick">Ground (background)</label>
+        <div class="pickline"><input type="color" id="groundPick" value="#ffffff">
+         <input type="text" id="groundHex" value="#ffffff" size="9" aria-label="Background color hex value"></div></div>
+      </div>
+      <p class="ratio-line">Contrast ratio: <strong id="ratioRead">—</strong> : 1 <span class="fineprint">(rounded down, never up)</span></p>
+      <ul id="verdictList"></ul>
+      <div id="previewPad">
+       <p class="pv-1">Body-size text sample</p>
+       <p class="pv-2">Large text sample (24 px)</p>
+       <p class="pv-3">Large bold sample (18.66 px bold)</p>
+      </div>
+      <p style="margin-top:1rem"><button id="autoFix">Suggest a passing ink (4.5:1)</button>
+       <span id="autoFixMsg" role="status" style="font-weight:700"></span></p>
+      <p class="fineprint">Large text means at least 24 px regular or 18.66 px bold. The suggestion blends
+      your ink toward black or white until the target clears, which preserves the hue.</p>
+     </div></section>
+
+    <section class="slab"><h3 class="slab-h">Magnification &amp; vision rig</h3>
+     <div class="slab-b">
+      <div class="rig-controls">
+       <label for="buildChoice">Sample build</label>
+       <select id="buildChoice"><option value="good">Patched (accessible)</option><option value="bad">Regression (broken)</option></select>
+       <label for="zoomRange">Text size <output id="zoomRead">100%</output></label>
+       <input type="range" id="zoomRange" min="100" max="400" step="25" value="100" aria-label="Sample text size percentage">
+       <label for="visionChoice">Color vision</label>
+       <select id="visionChoice"><option value="">Typical</option><option value="pro">Protanopia</option><option value="deu">Deuteranopia</option><option value="tri">Tritanopia</option><option value="ach">Achromatopsia</option></select>
+      </div>
+      <div class="rig-switches">
+       <label><input type="checkbox" id="reflowCheck"> Reflow at 320 px (SC 1.4.10)</label>
+       <label><input type="checkbox" id="spacingCheck"> Text spacing (SC 1.4.12)</label>
+      </div>
+      <p id="stageMsg" class="statusline" role="status"></p>
+      <div class="viewport"><div id="stage"></div></div>
+      <p class="fineprint" style="margin-top:.9rem">SC 1.4.4 expects text to scale to 200% with no loss of
+      content or function. This is a simulation — also test browser zoom, OS magnifiers, and a screen
+      reader such as NVDA, JAWS or VoiceOver.</p>
+     </div></section>
+
+   </div>
+  </section>
+
+  <!-- ================= BENCH 3 · REMEDIATION WORKSHOP ================= -->
+  <section role="tabpanel" id="bench3" aria-labelledby="nav3" hidden>
+   <div class="bench-head"><span class="bench-no" aria-hidden="true">03</span>
+    <div><h2>Remediation <em>workshop</em></h2>
+    <p>One broken tea-shop page, fourteen genuine WCAG 2.1 failures. Detect them, patch them, tick them off.</p></div></div>
+
+   <fieldset class="lens noprint"><legend>View</legend>
+    <label><input type="radio" name="lens" value="b" checked> Regression</label>
+    <label><input type="radio" name="lens" value="a"> Patched</label>
+    <label><input type="radio" name="lens" value="both"> Side by side</label>
+   </fieldset>
+
+   <div class="frames">
+    <figure class="frame" id="frameRegression">
+     <figcaption class="ftag ftag-bad">REGRESSION BUILD · FAILS</figcaption>
+     <div class="framebody" id="wb"></div></figure>
+    <figure class="frame" id="framePatched" hidden>
+     <figcaption class="ftag ftag-good">PATCHED BUILD · PASSES</figcaption>
+     <div class="framebody" id="wa"></div></figure>
+   </div>
+
+   <p id="tallyMsg" class="statusline" role="status"></p>
+   <progress id="gauge" class="noprint" max="14" value="0" aria-label="Barriers identified"></progress>
+   <h3 class="bench-plate noprint">BARRIER LEDGER</h3>
+   <div id="ledger" class="noprint"></div>
+  </section>
+
+  <!-- ================= BENCH 4 · AUDIT LEDGER ================= -->
+  <section role="tabpanel" id="bench4" aria-labelledby="nav4" hidden>
+   <div class="bench-head"><span class="bench-no" aria-hidden="true">04</span>
+    <div><h2>Audit <em>ledger</em></h2>
+    <p>Score each success criterion, attach evidence notes, then assemble, copy or print the report.</p></div></div>
+
+   <section class="slab"><h3 class="slab-h">Test protocol</h3>
+    <div class="slab-b"><p>Keyboard alone: Tab, Shift+Tab, Enter, Space, arrows, Esc. Screen readers:
+    NVDA on Firefox or Chrome, VoiceOver on Safari, TalkBack on Android. Magnify to 200%, run the
+    contrast bench, and finish with automated scanners (axe DevTools, Lighthouse, WAVE) — automation
+    catches only a slice of WCAG, so manual passes are mandatory.</p></div></section>
+
+   <div id="standards"></div>
+
+   <div class="rowbtns noprint">
+    <button class="act" id="buildReport">Build report</button>
+    <button id="copyReport">Copy report as text</button>
+    <button id="printSheet">Print</button>
+   </div>
+   <div class="outbox" data-strip="AUDIT OUTPUT"><pre id="reportOut" tabindex="-1" aria-live="off">Press “Build report” to assemble your audit summary.</pre></div>
+   <p id="copyMsg" class="statusline noprint" role="status"></p>
+  </section>
+
+  </main>
+
+  <footer class="colophon"><p><strong>IncluForge</strong> is a teaching bench — it cannot replace testing
+  with real assistive technology, and it only verifies what a browser can compute.</p></footer>
+ </div>
+</div>
+
+<!-- SVG color-vision filters, referenced by CSS filter:url() on the sample -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<filter id="pro"><feColorMatrix type="matrix" values="0.567 0.433 0 0 0 0.558 0.442 0 0 0 0 0.242 0.758 0 0 0 0 0 1 0"/></filter>
+<filter id="deu"><feColorMatrix type="matrix" values="0.625 0.375 0 0 0 0.7 0.3 0 0 0 0 0.3 0.7 0 0 0 0 0 1 0"/></filter>
+<filter id="tri"><feColorMatrix type="matrix" values="0.95 0.05 0 0 0 0 0.433 0.567 0 0 0 0.475 0.525 0 0 0 0 0 1 0"/></filter>
+<filter id="ach"><feColorMatrix type="matrix" values="0.299 0.587 0.114 0 0 0.299 0.587 0.114 0 0 0.299 0.587 0.114 0 0 0 0 0 1 0"/></filter>
+</defs></svg>
+
+<script>
+(() => {
+"use strict";
+const grab=(s,r=document)=>r.querySelector(s);
+const grabAll=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- appearance modes (starts from the OS preference) ---------- */
+const modeRadios=grabAll('input[name=mode]');
+document.documentElement.dataset.theme=matchMedia('(prefers-color-scheme: dark)').matches?'night':'day';
+modeRadios.forEach(r=>{
+ r.checked=(r.value===document.documentElement.dataset.theme);
+ r.addEventListener('change',()=>{document.documentElement.dataset.theme=r.value;});
+});
+
+/* ---------- bench tabs: vertical roving-tabindex tablist ---------- */
+const tabs=grabAll('#benchNav [role=tab]');
+const showBench=t=>{tabs.forEach(x=>{const on=x===t;
+ x.setAttribute('aria-selected',String(on));x.tabIndex=on?0:-1;
+ grab('#'+x.getAttribute('aria-controls')).hidden=!on;});};
+tabs.forEach(t=>t.addEventListener('click',()=>showBench(t)));
+grab('#benchNav').addEventListener('keydown',e=>{
+ const i=tabs.indexOf(document.activeElement);if(i<0)return;let n=-1;
+ if(e.key==='ArrowDown')n=(i+1)%tabs.length;
+ else if(e.key==='ArrowUp')n=(i-1+tabs.length)%tabs.length;
+ else if(e.key==='Home')n=0;else if(e.key==='End')n=tabs.length-1;
+ if(n>-1){e.preventDefault();tabs[n].focus();showBench(tabs[n]);}});
+
+/* polite live region: blank first so repeats are announced */
+const announce=m=>{const s=grab('#speak');s.textContent='';setTimeout(()=>s.textContent=m,60);};
+
+/* ---------- disclosures ---------- */
+grabAll('.fold').forEach(b=>b.addEventListener('click',()=>{
+ const open=b.getAttribute('aria-expanded')==='true';
+ b.setAttribute('aria-expanded',String(!open));
+ grab('#'+b.getAttribute('aria-controls')).hidden=open;}));
+
+/* ---------- modal: native <dialog> handles trap + Esc; we restore focus ---------- */
+const box=grab('#confirmBox'),launcher=grab('#launchDialog');
+launcher.addEventListener('click',()=>box.showModal());
+grab('#dismissDialog').addEventListener('click',()=>box.close());
+box.addEventListener('close',()=>launcher.focus());
+
+/* ---------- menu button (ARIA APG pattern) ---------- */
+const mBtn=grab('#toolTrigger'),mList=grab('#toolMenu'),mItems=grabAll('[role=menuitem]',mList);
+const openMenu=i=>{mList.hidden=false;mBtn.setAttribute('aria-expanded','true');mItems[i].focus();};
+const closeMenu=back=>{mList.hidden=true;mBtn.setAttribute('aria-expanded','false');if(back)mBtn.focus();};
+mBtn.addEventListener('click',()=>mList.hidden?openMenu(0):closeMenu(true));
+mBtn.addEventListener('keydown',e=>{
+ if(e.key==='ArrowDown'){e.preventDefault();openMenu(0);}
+ else if(e.key==='ArrowUp'){e.preventDefault();openMenu(mItems.length-1);}});
+mList.addEventListener('keydown',e=>{
+ const i=mItems.indexOf(document.activeElement);let n=-1;
+ if(e.key==='ArrowDown')n=(i+1)%mItems.length;
+ else if(e.key==='ArrowUp')n=(i-1+mItems.length)%mItems.length;
+ else if(e.key==='Home')n=0;else if(e.key==='End')n=mItems.length-1;
+ else if(e.key==='Escape'){closeMenu(true);return;}
+ else if(e.key==='Tab'){closeMenu(false);return;}
+ if(n>-1){e.preventDefault();mItems[n].focus();}});
+mItems.forEach(it=>it.addEventListener('click',()=>{closeMenu(true);announce('Menu choice recorded: '+it.textContent+'.');}));
+
+/* ---------- form: text errors tied to fields, summarised with focus ---------- */
+grab('#signupForm').addEventListener('submit',e=>{
+ e.preventDefault();const problems=[];
+ [['personName','Type your full name.'],['personEmail','Type an email in the name@example.com format.']]
+ .forEach(([id,msg])=>{
+  const field=grab('#'+id),slot=grab('#'+id+'Feedback'),val=field.value.trim();
+  const ok=val&&(id!=='personEmail'||/^\S+@\S+\.\S+$/.test(val));
+  field.setAttribute('aria-invalid',String(!ok));
+  slot.textContent=ok?'':'Error: '+msg;
+  if(!ok)problems.push([id,msg]);});
+ const digest=grab('#digest');
+ if(problems.length){
+  digest.innerHTML='<strong>'+problems.length+(problems.length>1?' fields need':' field needs')+' attention</strong><ul>'
+   +problems.map(([id,msg])=>'<li><a href="#'+id+'">'+esc(msg)+'</a></li>').join('')+'</ul>';
+  digest.hidden=false;digest.focus();
+ }else{digest.hidden=true;announce('Form submitted. Thank you.');}});
+grab('#digest').addEventListener('click',e=>{
+ const a=e.target.closest('a');if(!a)return;e.preventDefault();grab(a.getAttribute('href')).focus();});
+
+/* ---------- key journal + the deliberate trap in the regression sample ---------- */
+const feed=grab('#feed');
+const describe=el=>(el.getAttribute&&el.getAttribute('aria-label'))
+ ||(el.labels&&el.labels[0]&&el.labels[0].textContent.trim())
+ ||(el.textContent||'').trim().slice(0,30);
+document.addEventListener('keydown',e=>{
+ const el=document.activeElement;if(!el)return;
+ const row=document.createElement('li');
+ row.textContent=e.key+' → <'+el.tagName.toLowerCase()+'>'+((el.getAttribute&&el.getAttribute('role'))?' role="'+el.getAttribute('role')+'"':'')+' “'+describe(el)+'”';
+ feed.prepend(row);while(feed.children.length>8)feed.lastElementChild.remove();
+ if(el.classList&&el.classList.contains('snare')){
+  if(e.key==='Tab')e.preventDefault();
+  if(e.key==='Escape')el.blur();}});
+
+/* ================= BENCH 2 · WCAG contrast math ================= */
+const tidy=h=>{h=String(h).trim();
+ if(/^#[0-9a-f]{3}$/i.test(h))h='#'+[...h.slice(1)].map(c=>c+c).join('');
+ return /^#[0-9a-f]{6}$/i.test(h)?h.toLowerCase():null;};
+const lin=v=>v<=0.04045?v/12.92:Math.pow((v+0.055)/1.055,2.4);
+const relLum=h=>{const[r,g,b]=[1,3,5].map(i=>lin(parseInt(h.slice(i,i+2),16)/255));return .2126*r+.7152*g+.0722*b;};
+const cratio=(a,b)=>{const x=relLum(a),y=relLum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05);};
+const blend=(h,end,p)=>'#'+[1,3,5].map(i=>Math.round(parseInt(h.slice(i,i+2),16)*(1-p)+end*p).toString(16).padStart(2,'0')).join('');
+const passingInk=(fg,bg,goal)=>{
+ if(cratio(fg,bg)>=goal)return fg;
+ const end=relLum(bg)>0.179?255:0;
+ for(let k=1;k<=100;k++){const c=blend(fg,end,k/100);if(cratio(c,bg)>=goal)return c;}
+ return end?'#ffffff':'#000000';};
+const GOALS=[['Body text AA',4.5],['Large text AA',3],['UI parts & graphics AA (SC 1.4.11)',3],['Body text AAA',7],['Large text AAA',4.5]];
+function linkSwatch(colorId,hexId){
+ const color=grab('#'+colorId),hex=grab('#'+hexId);
+ color.addEventListener('input',()=>{hex.value=color.value;measure();});
+ hex.addEventListener('input',()=>{const v=tidy(hex.value);if(v){color.value=v;measure();}});}
+linkSwatch('inkPick','inkHex');linkSwatch('groundPick','groundHex');
+function measure(){
+ const f=tidy(grab('#inkHex').value),b=tidy(grab('#groundHex').value);if(!f||!b)return;
+ const r=cratio(f,b);
+ grab('#ratioRead').textContent=(Math.floor(r*100)/100).toFixed(2);
+ grab('#verdictList').innerHTML=GOALS.map(([label,goal])=>{
+  const pass=r>=goal;
+  return '<li class="'+(pass?'pass':'nopass')+'"><span aria-hidden="true">'+(pass?'✔':'✘')+'</span> '+label+' — needs '+goal+':1</li>';}).join('');
+ const pad=grab('#previewPad');pad.style.background=b;pad.style.color=f;}
+measure();
+grab('#autoFix').addEventListener('click',()=>{
+ const f=tidy(grab('#inkHex').value),b=tidy(grab('#groundHex').value),out=grab('#autoFixMsg');
+ if(!f||!b){out.textContent='Two valid hex values are needed first.';return;}
+ const better=passingInk(f,b,4.5);
+ grab('#inkHex').value=better;grab('#inkPick').value=better;measure();
+ out.textContent='Ink adjusted to '+better+' to clear 4.5:1.';});
+
+/* ---------- fixture sample: patched build vs regression build ---------- */
+const ART="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='60'%3E%3Crect width='80' height='60' fill='%23b98d5e'/%3E%3C/svg%3E";
+function fixture(good,tag){
+ const add="document.getElementById('"+tag+"CartNote').textContent='Assam added to your basket'";
+ if(good)return '<div class="fixture fixture-good">'
+  +'<header class="fx-top"><h2>Copper Kettle</h2><button type="button" aria-label="Search the shop">🔍</button></header>'
+  +'<h3>Loose-leaf picks</h3>'
+  +'<img src="'+ART+'" alt="Tin of loose-leaf Assam tea" width="80" height="60">'
+  +'<p>Single-garden teas, blended weekly in-house. <a href="#" onclick="return false">Read our brewing guide</a></p>'
+  +'<button type="button" onclick="'+add+'">Add to basket</button> <span id="'+tag+'CartNote" role="status"></span>'
+  +'<form onsubmit="return false"><label for="'+tag+'Email">Email</label>'
+  +'<input id="'+tag+'Email" type="email" aria-invalid="true" aria-describedby="'+tag+'EmailMsg" value="sam@">'
+  +'<span id="'+tag+'EmailMsg" class="fx-err">⚠ Error: enter a complete email address.</span></form>'
+  +'<table><caption>Prices</caption><thead><tr><th scope="col">Tin</th><th scope="col">Price</th></tr></thead>'
+  +'<tbody><tr><td>100 g</td><td>$8</td></tr></tbody></table></div>';
+ return '<div class="fixture fixture-bad">'
+  +'<header class="fx-top"><h2>Copper Kettle</h2><button type="button">🔍</button></header>'
+  +'<h5>Loose-leaf picks</h5>'
+  +'<img src="'+ART+'">'
+  +'<p class="fx-dim">Single-garden teas, blended weekly in-house. To learn more <a href="#" onclick="return false" tabindex="5">click here</a></p>'
+  +'<div class="fx-click" onclick="'+add+'">Add to basket</div><span id="'+tag+'CartNote"></span>'
+  +'<form onsubmit="return false"><input class="fx-red" placeholder="Email" value="sam@"><br><br>'
+  +'<input class="snare" value="Tab is trapped in this field. Press Esc to escape."></form>'
+  +'<table><tr><td>Tin</td><td>Price</td></tr><tr><td>100 g</td><td>$8</td></tr></table></div>';}
+
+/* ---------- magnification stage ---------- */
+const stage=grab('#stage');
+function paintStage(){
+ stage.innerHTML=fixture(grab('#buildChoice').value==='good','sim');dressStage();}
+function dressStage(){
+ const zoom=+grab('#zoomRange').value;
+ grab('#zoomRead').textContent=zoom+'%';
+ stage.style.fontSize=(16*zoom/100)+'px';
+ stage.style.width=grab('#reflowCheck').checked?'320px':'';
+ stage.classList.toggle('airy',grab('#spacingCheck').checked);
+ stage.style.filter=grab('#visionChoice').value?'url(#'+grab('#visionChoice').value+')':'';
+ const box=stage.parentElement;
+ const overflow=stage.scrollWidth>box.clientWidth+1||(grab('#reflowCheck').checked&&stage.scrollWidth>322);
+ grab('#stageMsg').textContent=(overflow
+  ?'Caution: content scrolls sideways here, which breaches reflow (SC 1.4.10) at 320 px or 400% zoom.'
+  :'No sideways scrolling detected.')
+  +(grab('#spacingCheck').checked?' Watch the sample for clipped or overlapping words.':'');}
+['buildChoice','visionChoice','reflowCheck','spacingCheck'].forEach(id=>
+ grab('#'+id).addEventListener('change',id==='buildChoice'?paintStage:dressStage));
+grab('#zoomRange').addEventListener('input',dressStage);
+paintStage();
+
+/* ================= BENCH 3 · barrier ledger ================= */
+const BARRIERS=[
+['Low-contrast text','1.4.3','Contrast (Minimum)','AA','People with low vision, or anyone outdoors','#aaa on white is roughly 2.3:1 — verify on the contrast bench.','Lift text to 4.5:1 or better.','<p style="color:#aaa">','<p style="color:#444">'],
+['Image missing alt text','1.1.1','Non-text Content','A','Screen reader users','No alt attribute, so a file name may be read aloud.','Describe informative images; mark decorative ones alt="".','<img src="tea.png">','<img src="tea.png" alt="Tin of Assam tea">'],
+['Clickable div','2.1.1','Keyboard','A','Keyboard, switch and screen reader users','Tab skips it entirely — a div is not focusable.','Use a native <button>.','<div onclick="add()">Add</div>','<button type="button" onclick="add()">Add</button>'],
+['Placeholder standing in for a label','3.3.2','Labels or Instructions','A','Screen reader and cognitive-disability users','The hint vanishes on input and no label exists.','Attach a visible <label> with for and id.','<input placeholder="Email">','<label for="e">Email</label><input id="e">'],
+['Error signalled by color alone','1.4.1','Use of Color','A','Color-blind and low-vision users','Under the achromatopsia filter the red border disappears.','Pair color with text or an icon via aria-describedby.','<input class="red">','<input aria-invalid="true" aria-describedby="m"><span id="m">Error: …</span>'],
+['Focus indicator removed','2.4.7','Focus Visible','AA','Keyboard users','Tab through and focus becomes invisible.','Delete outline:none or design a clear replacement.','*:focus{outline:none}',':focus-visible{outline:3px solid #1d4ed8}'],
+['Positive tabindex','2.4.3','Focus Order','A','Keyboard and screen reader users','tabindex="5" yanks the link out of natural order.','Stick to 0 / -1 and let the DOM set the order.','<a tabindex="5">','<a href="#">'],
+['Heading levels skipped','1.3.1','Info and Relationships','A','Screen reader users navigating by heading','The outline jumps from h2 to h5.','Mirror the visual outline in heading levels.','<h2>…</h2><h5>…</h5>','<h2>…</h2><h3>…</h3>'],
+['Link text that says nothing','2.4.4','Link Purpose (In Context)','A','Screen reader users listing links','The links list reads “click here”.','Write link text that names its destination.','<a>click here</a>','<a>Read our brewing guide</a>'],
+['Icon button with no accessible name','4.1.2','Name, Role, Value','A','Screen reader and voice-control users','The accessibility tree exposes an empty name.','Add aria-label or visible text.','<button>🔍</button>','<button aria-label="Search">🔍</button>'],
+['Data table without headers','1.3.1','Info and Relationships','A','Screen reader users','Cells are announced with no column context.','Use th with scope and add a caption.','<td>Tin</td>','<th scope="col">Tin</th>'],
+['Hard-coded pixel width','1.4.4','Resize Text','AA','People who enlarge text','A fixed 600 px container clips content when text scales.','Prefer max-width with relative sizing.','width:600px','max-width:600px;width:100%'],
+['Document language not declared','3.1.1','Language of Page','A','Screen reader users — the wrong pronunciation voice may load','The root <html> carries no lang attribute.','Set lang on the root element.','<html>','<html lang="en">'],
+['Basket update never announced','4.1.3','Status Messages','A','Screen reader users','Adding to the basket produces no live-region output.','Mark the notice with role="status".','<span id="note"></span>','<span id="note" role="status"></span>']
+];
+grab('#ledger').innerHTML=BARRIERS.map((b,i)=>'<article class="case">'
+ +'<div class="case-head"><span class="sctag">'+b[1]+' · '+b[3]+'</span><h4>'+b[0]+'</h4></div>'
+ +'<p class="case-who">'+b[2]+' — affects: '+b[4]+'</p>'
+ +'<div class="case-actions">'
+ +'<label class="tick tick-found"><input type="checkbox" class="foundBox"> Found it</label>'
+ +'<label class="tick tick-fixed"><input type="checkbox" class="fixedBox"> Patched</label>'
+ +'<details><summary>How to detect &amp; fix</summary>'
+ +'<p><strong>Spot it:</strong> '+b[5]+'</p>'
+ +'<p><strong>Fix it:</strong> '+b[6]+'</p>'
+ +'<pre>Regression: '+esc(b[7])+'\nPatched:    '+esc(b[8])+'</pre>'
+ +'</details></div></article>').join('');
+function tally(){
+ const found=grabAll('.foundBox').filter(x=>x.checked).length;
+ const patched=grabAll('.fixedBox').filter(x=>x.checked).length;
+ grab('#gauge').value=found;
+ grab('#tallyMsg').textContent=found+' of '+BARRIERS.length+' barriers identified · '+patched+' patched.';}
+grab('#ledger').addEventListener('change',tally);tally();
+
+/* ---------- lens: regression / patched / side by side ---------- */
+const frameB=grab('#frameRegression'),frameA=grab('#framePatched');
+grabAll('input[name=lens]').forEach(r=>r.addEventListener('change',()=>{
+ if(!r.checked)return;
+ frameB.hidden=(r.value!=='b');
+ frameA.hidden=(r.value!=='a');}));
+
+/* ================= BENCH 4 · audit ledger ================= */
+const CRITERIA=[
+['1.1.1','Non-text Content','A','Every image has appropriate alt text; icons and controls have names.'],
+['1.3.1','Info and Relationships','A','Headings, labels, tables and lists convey structure programmatically.'],
+['1.4.1','Use of Color','A','Color is never the only way to spot information or errors.'],
+['1.4.3','Contrast (Minimum)','AA','Text meets 4.5:1 — or 3:1 for large text.'],
+['1.4.4','Resize Text','AA','Text scales to 200% with no loss of content or function.'],
+['1.4.10','Reflow','AA','No horizontal scrolling at 320 px width or 400% zoom.'],
+['1.4.11','Non-text Contrast','AA','UI parts and meaningful graphics meet 3:1 against adjacent colors.'],
+['2.1.1','Keyboard','A','Every action is operable with the keyboard alone.'],
+['2.4.3','Focus Order','A','Focus moves in an order that preserves meaning.'],
+['2.4.7','Focus Visible','AA','The keyboard focus location is always visible.'],
+['3.3.2','Labels or Instructions','A','Fields carry visible labels or instructions.'],
+['4.1.2','Name, Role, Value','A','Custom controls expose correct name, role and state.']];
+grab('#standards').innerHTML=CRITERIA.map((c,i)=>'<div class="stdrow">'
+ +'<div class="std-top"><span class="sctag">'+c[0]+'</span><strong>'+c[1]+'</strong><span class="lvl">'+c[2]+'</span></div>'
+ +'<p class="std-how">'+c[3]+'</p>'
+ +'<div class="std-controls">'
+ +'<label><input type="radio" name="std'+i+'" value="pass"> Pass</label>'
+ +'<label><input type="radio" name="std'+i+'" value="fail"> Fail</label>'
+ +'<label><input type="radio" name="std'+i+'" value="na"> N/A</label>'
+ +'<input class="stdnote" type="text" data-note="'+i+'" aria-label="Notes for '+c[0]+' '+c[1]+'" placeholder="Notes (optional)">'
+ +'</div></div>').join('');
+
+grab('#buildReport').addEventListener('click',()=>{
+ const rule='─'.repeat(52);
+ const out=['INCLUFORGE — WCAG 2.1 AA AUDIT','Generated: '+new Date().toLocaleString(),rule];
+ let p=0,f=0,n=0,u=0;
+ CRITERIA.forEach((c,i)=>{
+  const pick=grab('input[name="std'+i+'"]:checked');
+  const note=grab('input[data-note="'+i+'"]').value.trim();
+  const state=pick?pick.value.toUpperCase():'UNTESTED';
+  if(pick){if(pick.value==='pass')p++;else if(pick.value==='fail')f++;else n++;}else u++;
+  out.push('['+state+'] '+c[0]+' '+c[1]+' ('+c[2]+')'+(note?'\n         Notes: '+note:''));});
+ out.push(rule,'Summary: '+p+' pass · '+f+' fail · '+n+' n/a · '+u+' untested',
+  'Method: keyboard pass, screen-reader pass, 200% zoom, contrast bench, automated scanners.');
+ const rep=grab('#reportOut');rep.textContent=out.join('\n');rep.focus();});
+
+grab('#copyReport').addEventListener('click',()=>{
+ const txt=grab('#reportOut').textContent,msg=grab('#copyMsg');
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(txt)
+   .then(()=>msg.textContent='Audit copied to your clipboard.')
+   .catch(()=>msg.textContent='Clipboard access was blocked — select the output and copy manually.');
+ }else msg.textContent='Clipboard unavailable in this browser — copy the output manually.';});
+
+grab('#printSheet').addEventListener('click',()=>window.print());
+})();
+</script>
+</body>
+</html>
